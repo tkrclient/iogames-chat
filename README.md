@@ -1,4 +1,4 @@
-# What this chat actually looks like
+## What this chat actually looks like
 ![png](screenshots/screenshot.png)
 
 # Features of this chat
