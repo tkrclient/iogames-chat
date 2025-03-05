@@ -1,5 +1,5 @@
 # What this chat actually looks like
-![png](https://github.com/script26/iogames-chat/blob/main/screenshots/screenshot.png)
+![png](screenshots/screenshot.png)
 
 # Features of this chat
 - Change username color
