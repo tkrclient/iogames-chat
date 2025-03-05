@@ -1,7 +1,7 @@
 ## What this chat actually looks like
 ![png](screenshots/screenshot.png)
 
-# Features of this chat
+## Features of this chat
 - Change username color
 - Gives randomized "Guest____" username without a cookie (new user)
 - Gives randomized username color without a cookie (new user)
@@ -17,7 +17,7 @@
 - Is open source so you can customize it to your liking
 - When connection is lost, it will reconnect every two seconds
 
-# Chat Example
+## Chat Example
 
 This application shows how to use the
 [websocket](https://github.com/gorilla/websocket) package to implement a simple
