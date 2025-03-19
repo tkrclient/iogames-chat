@@ -1,4 +1,4 @@
-window.onload = function() {
+document.addEventListener('DOMContentLoaded', function() {
 	var msg = document.getElementById("msg"); // Message input field
 	var nme = document.getElementById("nme"); // Username input field
 	var log = document.getElementById("log"); // Log container for messages
@@ -201,4 +201,4 @@ window.onload = function() {
 		item.innerHTML = "<b>Your browser does not support WebSockets.</b>"; // Bold error message
 		appendLog(item); // Append the error message to the log
 	}
-};
+});
