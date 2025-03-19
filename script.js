@@ -190,7 +190,6 @@ window.onload = function() {
 		function reconnect() {
 			console.log('Reconnecting...');
 			establishConnection(); // Attempt to reconnect
-			reconnectDelay = 2000; // Increase delay for next attempt
 		}
 
 		// Establish the initial connection
