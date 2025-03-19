@@ -99,7 +99,7 @@ window.onload = function() {
 
 	// Handle the form submission for sending messages
 	message.onsubmit = function() {
-		if (!conn) {
+		if (!ws) {
 			return false;
 		}
 		if (!msg.value) {
@@ -114,7 +114,7 @@ window.onload = function() {
 		};
 
 		console.log("Sending message:", JSON.stringify(fullMessage));
-		conn.send(JSON.stringify(fullMessage));
+		ws.send(JSON.stringify(fullMessage));
 
 		// Clear the message input field
 		msg.value = "";
@@ -125,21 +125,21 @@ window.onload = function() {
 	if (window["WebSocket"]) {
 		function establishConnection() {
 			// Establish a WebSocket connection to the server
-			conn = new WebSocket("ws://" + document.location.host + "/ws");
+			ws = new WebSocket("ws://" + document.location.host + "/ws");
 
 			// Event handler when open
-			conn.onopen = function(evt) {
+			ws.onopen = function(evt) {
 				console.log("%c Connection established", "color: red");
 			};
 
 			// Event handler for when the WebSocket connection is closed
-			conn.onclose = function(evt) {
+			ws.onclose = function(evt) {
 				console.log("%c Connection closed, reconnecting...", "color: red");
 				setTimeout(reconnect, 2000); // Reconnect after a delay
 			};
 
 			// Event handler for when a message is received from the server
-			conn.onmessage = function(evt) {
+			ws.onmessage = function(evt) {
 				// Log raw data for debugging
 				console.log("Raw data received:", evt.data);
 
