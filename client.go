@@ -5,17 +5,16 @@
 package main
 
 import (
-//	"bytes"
 	"log"
 	"net/http"
 	"time"
-    "encoding/json"
+	"encoding/json"
 
 	"github.com/gorilla/websocket"
 
 	// For saving database of chat
 	"bufio"
-    "os"
+	"os"
 )
 
 func (c *Client) register(username string) {
@@ -24,9 +23,9 @@ func (c *Client) register(username string) {
 }
 
 type Message struct {
-    Username string `json:"username"`
-    Color    string `json:"color"`
-    Text     string `json:"text"`
+	Username string `json:"username"`
+	Color    string `json:"color"`
+	Text     string `json:"text"`
 }
 
 var chatLogFile *os.File // Global file pointer for storing chat messages
@@ -125,9 +124,9 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-    CheckOrigin: func(r *http.Request) bool {
-        return true // This allows all origins
-    },
+	CheckOrigin: func(r *http.Request) bool {
+		return true // This allows all origins
+	},
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -140,21 +139,21 @@ type Client struct {
 	// Buffered channel of outbound messages.
 	send chan []byte
 
-    // Add fields for username and color
-    username string
-    color    string
+	// Add fields for username and color
+	username string
+	color    string
 
-    // Timestamps of last messages sent
-    messageTimestamps []time.Time
+	// Timestamps of last messages sent
+	messageTimestamps []time.Time
 }
 
 func newClient(hub *Hub, conn *websocket.Conn) *Client {
-    return &Client{
-        hub: hub,
-        conn: conn,
-        send: make(chan []byte, 256),
-        messageTimestamps: make([]time.Time, 0),
-    }
+	return &Client{
+		hub: hub,
+		conn: conn,
+		send: make(chan []byte, 256),
+		messageTimestamps: make([]time.Time, 0),
+	}
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -163,74 +162,74 @@ func newClient(hub *Hub, conn *websocket.Conn) *Client {
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
 func (c *Client) readPump() {
-    defer func() {
-        c.hub.unregister <- c
-        c.conn.Close()
-    }()
+	defer func() {
+		c.hub.unregister <- c
+		c.conn.Close()
+	}()
 
-    c.conn.SetReadLimit(maxMessageSize)
-    c.conn.SetReadDeadline(time.Now().Add(pongWait))
-    c.conn.SetPongHandler(func(string) error {
-        c.conn.SetReadDeadline(time.Now().Add(pongWait))
-        return nil
-    })
+	c.conn.SetReadLimit(maxMessageSize)
+	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(string) error {
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
 
 	// Send chat history to the newly connected client
 	c.sendChatHistory()
 
-    for {
-        _, rawMessage, err := c.conn.ReadMessage()
-        if err != nil {
-            if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-                log.Printf("error: %v", err)
-            }
-            break
-        }
+	for {
+		_, rawMessage, err := c.conn.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
+			break
+		}
 
-        // Check message rate limit
-        now := time.Now()
-        c.messageTimestamps = append(c.messageTimestamps, now)
+		// Check message rate limit
+		now := time.Now()
+		c.messageTimestamps = append(c.messageTimestamps, now)
 
-        // Remove timestamps older than 1 second
-        for len(c.messageTimestamps) > 0 && now.Sub(c.messageTimestamps[0]) > time.Second {
-            c.messageTimestamps = c.messageTimestamps[1:]
-        }
+		// Remove timestamps older than 1 second
+		for len(c.messageTimestamps) > 0 && now.Sub(c.messageTimestamps[0]) > time.Second {
+			c.messageTimestamps = c.messageTimestamps[1:]
+		}
 
-        if len(c.messageTimestamps) >= 3 {
-            log.Println("Message rate limit exceeded. Blocking client: ", c.conn.RemoteAddr())
-		    // Block the client by closing the connection
-            c.conn.Close()
-            return
-        }
+		if len(c.messageTimestamps) >= 3 {
+			log.Println("Message rate limit exceeded. Blocking client: ", c.conn.RemoteAddr())
+			// Block the client by closing the connection
+			c.conn.Close()
+			return
+		}
 
-        var clientMsg Message
+		var clientMsg Message
 
-        // Parse incoming raw JSON message into clientMsg struct
-        err = json.Unmarshal(rawMessage, &clientMsg)
-        if err != nil {
-            log.Println("Error parsing incoming message:", err)
-            continue
-        }
+		// Parse incoming raw JSON message into clientMsg struct
+		err = json.Unmarshal(rawMessage, &clientMsg)
+		if err != nil {
+			log.Println("Error parsing incoming message:", err)
+			continue
+		}
 
-        msg := Message{
-            Username: clientMsg.Username,
-            Color:    clientMsg.Color,
-            Text:     clientMsg.Text,
-        }
+		msg := Message{
+			Username: clientMsg.Username,
+			Color:    clientMsg.Color,
+			Text:     clientMsg.Text,
+		}
 
-	    initChatLog()
+		initChatLog()
 		saveToLog(rawMessage, msg) // Save rawMessage and msg to the log file
 
-        // Serialize the message as JSON for broadcasting
-        jsonMessage, err := json.Marshal(msg)
-        if err != nil {
-            log.Println("Error serializing message:", err)
-            continue
-        }
+		// Serialize the message as JSON for broadcasting
+		jsonMessage, err := json.Marshal(msg)
+		if err != nil {
+			log.Println("Error serializing message:", err)
+			continue
+		}
 
-        // Broadcast the JSON message to all clients
-        c.hub.broadcast <- jsonMessage
-    }
+		// Broadcast the JSON message to all clients
+		c.hub.broadcast <- jsonMessage
+	}
 }
 
 // writePump pumps messages from the hub to the websocket connection.
@@ -246,7 +245,7 @@ func (c *Client) writePump() {
 	}()
 	for {
 		select {
-		case message, ok := <-c.send:
+			case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
@@ -270,7 +269,7 @@ func (c *Client) writePump() {
 			if err := w.Close(); err != nil {
 				return
 			}
-		case <-ticker.C:
+			case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
