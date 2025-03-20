@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		function establishConnection() {
 			// Event handler when open
 			ws.onopen = function(evt) {
-				console.log("%c Connection established to chat", "color: green");
+				console.log("%c Connection established to chat", "color: lightgreen");
 			};
 
 			// Event handler for when the WebSocket connection is closed
