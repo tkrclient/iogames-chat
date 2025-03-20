@@ -125,6 +125,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Check if the browser supports WebSocket
 	if (window["WebSocket"]) {
 		function establishConnection() {
+			ws = new WebSocket("ws://" + document.location.host + "/ws");
+
 			// Event handler when open
 			ws.onopen = function(evt) {
 				console.log("%c Connection established to chat", "color: lightgreen");
