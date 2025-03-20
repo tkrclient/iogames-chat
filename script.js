@@ -113,7 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			text: msg.value,
 		};
 
-		console.log("Sending message:", JSON.stringify(fullMessage));
+		// Debug sent text
+		// console.log("Sending message:", JSON.stringify(fullMessage));
 		ws.send(JSON.stringify(fullMessage));
 
 		// Clear the message input field
