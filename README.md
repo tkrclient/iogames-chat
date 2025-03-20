@@ -32,7 +32,7 @@ development environment.
 Once you have Go up and running, you can download, build and run the example
 using the following commands.
 
-    $ go get github.com/gorilla/websocket
+    $ go install
     $ go run *.go
 
 To use the chat example, open http://localhost:8080/home.html in your browser.
