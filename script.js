@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	var nme = document.getElementById("nme"); // Username input field
 	var log = document.getElementById("log"); // Log container for messages
 	var pick = document.getElementById("colorpicker"); // Username's Colorpicker
+	var ws = new WebSocket("ws://" + document.location.host + "/ws");	// Establish a WebSocket connection to the server
 	var message = document.getElementById("message");
 
 	// A map to store usernames and their assigned colors
@@ -123,12 +124,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Check if the browser supports WebSocket
 	if (window["WebSocket"]) {
 		function establishConnection() {
-			// Establish a WebSocket connection to the server
-			ws = new WebSocket("ws://" + document.location.host + "/ws");
-
 			// Event handler when open
 			ws.onopen = function(evt) {
-				console.log("%c Connection established", "color: red");
+				console.log("%c Connection established to chat", "color: green");
 			};
 
 			// Event handler for when the WebSocket connection is closed
@@ -140,19 +138,19 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Event handler for when a message is received from the server
 			ws.onmessage = function(evt) {
 				// Log raw data for debugging
-				console.log("Raw data received:", evt.data);
+				// console.log("Raw data received:", evt.data);
 
 				// Parse the incoming JSON string into a JavaScript object
 				const data = JSON.parse(evt.data);
 
 				// Log parsed data for debugging
-				console.log("Parsed data:", data);
+				// console.log("Parsed data:", data);
 
 				// Ensure `data` has both `username` and `text`
-				if (!data.username || !data.text) {
+				/* if (!data.username || !data.text) {
 					console.error("Parsed data is missing username or text:", data);
 					return;
-				}
+				} */
 
 				// Display username and message
 				const item = document.createElement("div");
@@ -195,9 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Establish the initial connection
 		establishConnection();
 	} else {
-		// If WebSockets are not supported by the browser, display an error message
-		var item = document.createElement("div");
-		item.innerHTML = "<b>Your browser does not support WebSockets.</b>"; // Bold error message
-		appendLog(item); // Append the error message to the log
+    // If WebSockets are not supported by the browser, show an error message in console log
+    console.error("%c Your browser does not support WebSockets.", "color: red");
 	}
 });
